@@ -4,7 +4,8 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Running build automation'
-                sh './gradlew build --no-daemon'
+                //sh './gradlew build --no-daemon'
+                bat './gradlew build --no-daemon'
                 archiveArtifacts artifacts: 'dist/trainSchedule.zip'
             }
         }
@@ -16,7 +17,8 @@ pipeline {
                 script {
                     app = docker.build("willbla/train-schedule")
                     app.inside {
-                        sh 'echo $(curl localhost:8080)'
+                        //sh 'echo $(curl localhost:8080)'
+                        //bat 'echo $(curl localhost:8080)'
                     }
                 }
             }
@@ -28,13 +30,14 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://registry.hub.docker.com', 'docker_hub_login') {
-                        app.push("${env.BUILD_NUMBER}")
+                        //app.push("${env.BUILD_NUMBER}")
+                        app.push("%BUILD_NUMBER%")
                         app.push("latest")
                     }
                 }
             }
         }
-        stage('DeployToProduction') {
+        /*stage('DeployToProduction') {
             when {
                 branch 'master'
             }
@@ -53,7 +56,7 @@ pipeline {
                         sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$prod_ip \"docker run --restart always --name train-schedule -p 8080:8080 -d willbla/train-schedule:${env.BUILD_NUMBER}\""
                     }
                 }
-            }
+            }*/
         }
     }
 }
